@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Password - Generator</title>
+    <style>
+        body {
+            font-family: "Poppins", sans-serif;
+            background: #f3f4f6;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        h1 {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 2rem;
+            color: #1e293b;
+        }
+
+        .gen-box {
+            max-width: 450px;
+            width: 90%;
+            margin-top: 30px;
+            background-color: white;
+            border-radius: 16px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            padding: 30px 20px;
+            gap: 20px;
+        }
+
+        .input-box {
+            display: flex;
+            gap: 10px;
+            width: 100%;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .input-box input {
+            width: 65%;
+            padding: 10px;
+            font-size: 1rem;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            outline: none;
+        }
+
+        button {
+            background-color: #2563eb;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            font-size: 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #1e40af;
+        }
+
+        .passText {
+            visibility: hidden;
+        }
+
+        .result-box h2 {
+            margin: 0;
+            color: #0f172a;
+        }
+
+        .result-box p {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #111827;
+            background: #f9fafb;
+            padding: 10px;
+            border-radius: 8px;
+            min-height: 24px;
+            width: 100%;
+            text-align: center;
+            word-break: break-all;
+        }
+
+        .save-password {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .save-password>button {
+            background-color: #10b981;
+            flex: 1;
+            min-width: 120px;
+        }
+
+        .save-password button:hover {
+            background-color: #059669;
+        }
+
+        .save-password .seepass {
+            background-color: #f59e0b;
+        }
+
+        .saved-passwords {
+            max-width: 450px;
+            width: 90%;
+            background: white;
+            margin-top: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+        }
+
+        .saved-passwords h3 {
+            margin: 0 0 10px 0;
+            text-align: center;
+            color: #1f2937;
+        }
+
+        .password-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .password-item {
+            background: #f3f4f6;
+            padding: 8px 10px;
+            border-radius: 8px;
+            word-break: break-word;
+            font-weight: 500;
+            font-size: 1rem;
+            text-align: center;
+            border: 1px solid #d1d5db;
+        }
+
+        /* ✅ Responsive styling */
+        @media (max-width: 480px) {
+            h1 {
+                font-size: 1.6rem;
+            }
+
+            .result-box p {
+                font-size: 1rem;
+                padding: 8px;
+            }
+
+            button {
+                width: 100%;
+                font-size: 0.9rem;
+                padding: 10px;
+            }
+
+            .save-password {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Password Generator</h1>
+    <div class="gen-box">
+        <div class="input-box">
+            <button>Generate Password</button>
+        </div>
+
+        <div class="result-box">
+            <h2 class="passText">Your Password:</h2>
+            <p id="result"></p>
+        </div>
+
+        <div class="save-password">
+            <button>Save Password</button>
+            <button class="seepass">See Password</button>
+        </div>
+
+        <!-- Area to display saved passwords -->
+        <div class="saved-passwords" style="display: none">
+            <h3>Saved Passwords</h3>
+            <div class="password-list" id="passwordList"></div>
+        </div>
+    </div>
+
+    <script>
+        let generateBtn = document.querySelector(".input-box button");
+        let resultEl = document.getElementById("result");
+        let saveBtn = document.querySelector(".save-password button");
+        let passText = document.querySelector(".passText");
+        let seePassBtn = document.querySelector(".seepass");
+        let passwordList = document.querySelector('#passwordList');
+        let savedPasswordsBox = document.querySelector('.saved-passwords');
+
+        function generatePassword(length = 12) {
+            const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()-_=+[]{};:,.<>?";
+            let password = "";
+            for (let i = 0; i < length; i++) {
+                password += characters[Math.floor(Math.random() * characters.length)];
+            }
+            return password;
+        }
+
+        function savePassword(password) {
+            let passwordsArray = JSON.parse(localStorage.getItem("passwords")) || [];
+            if (passwordsArray.includes(password)) {
+                alert("This password is already saved!");
+                return;
+            }
+            passwordsArray.push(password);
+            localStorage.setItem("passwords", JSON.stringify(passwordsArray));
+            alert("Password saved successfully! click 'See Password' to see it");
+        }
+
+        function displayPasswords() {
+            passwordList.innerHTML = "";
+            let passwordArr = JSON.parse(localStorage.getItem("passwords")) || [];
+            if (passwordArr.length === 0) {
+                passwordList.innerHTML = "<p style='text-align:center;color:#6b7280;'>No saved passwords yet.</p>";
+            } else {
+                passwordArr.forEach((pass, index) => {
+                    let p = document.createElement("div");
+                    p.classList.add("password-item");
+                    p.style.display = "flex";
+                    p.style.justifyContent = "space-between";
+                    p.style.alignItems = "center";
+
+                    let passText = document.createElement("span");
+                    passText.textContent = pass;
+
+                    let deleteBtn = document.createElement("button");
+                    deleteBtn.textContent = "❌";
+                    deleteBtn.style.background = "transparent";
+                    deleteBtn.style.border = "none";
+                    deleteBtn.style.cursor = "pointer";
+                    deleteBtn.style.fontSize = "1rem";
+                    deleteBtn.style.color = "#ef4444";
+
+                    deleteBtn.addEventListener("click", () => {
+                        confirm('Are you sure');
+                        passwordArr.splice(index, 1);
+                        localStorage.setItem("passwords", JSON.stringify(passwordArr));
+                        displayPasswords();
+                    });
+
+                    p.appendChild(passText);
+                    p.appendChild(deleteBtn);
+                    passwordList.appendChild(p);
+                });
+            }
+            savedPasswordsBox.style.display = "block";
+        }
+
+        generateBtn.addEventListener("click", () => {
+            passText.style.visibility = "visible";
+            resultEl.textContent = generatePassword(12);
+        });
+
+        saveBtn.addEventListener("click", () => {
+            let password = resultEl.textContent;
+            if (password) {
+                savePassword(password);
+            } else {
+                alert("Please generate a password first!");
+            }
+        });
+
+        seePassBtn.addEventListener("click", displayPasswords);
+    </script>
+</body>
+
+</html>
